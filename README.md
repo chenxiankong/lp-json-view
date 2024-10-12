@@ -6,6 +6,11 @@ Chrome 商店[地址](https://chrome.google.com/webstore/detail/lp-json-view/jcg
 ---
 **查看/格式化** 二合一。
 
+## 运行
+1. npm i
+2. npm run build && node script/build.js
+3. 浏览器开启开发者模式,把目录下的build文件夹拖入
+
 ## 功能
 - 自动识别 JSON 内容，并在页面右下角创建切换按钮。
 -  支持展开/折叠节点。
