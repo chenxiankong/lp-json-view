@@ -24,6 +24,7 @@ class App extends React.Component {
       viewRaw: true,
       rjvKey: Date.now(),
       collapsed: false,
+      collapseStringsAfterLength : 100,
     };
     this.refEdit = null;
     this.isDragStart = false;
@@ -140,6 +141,18 @@ class App extends React.Component {
     this.setState({ collapsed: value, rjvKey: Date.now() });
   }
 
+  handleCollapseStringsInputChange(e) {
+    e.persist();
+
+    let v = parseInt(e.target.value,10)
+    if (v == "NaN") {
+      return
+    }
+
+    this.setState({ collapseStringsAfterLength: v });
+  }
+
+
   handleMouseMove(e) {
     if (!this.isDragStart) {
       return;
@@ -165,7 +178,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { data, showView, viewRaw, isJson, rjvKey, collapsed } = this.state;
+    const { data, showView, viewRaw, isJson, rjvKey, collapsed,collapseStringsAfterLength } = this.state;
     const url = new URL(window.location.href);
 
     return (
@@ -180,7 +193,7 @@ class App extends React.Component {
             <div className="___lp-json-view-App-status">
               展开状态：
               <select onChange={(e) => this.handleStatusChange(e)}>
-                <option value="false">全部展开</option>
+                <option value="false">全部展开111</option>
                 <option value="true">全部折叠</option>
                 <option value="1">展开1层</option>
                 <option value="2">展开2层</option>
@@ -202,6 +215,7 @@ class App extends React.Component {
               iconStyle="square"
               indentWidth={2}
               displayDataTypes={false}
+              collapseStringsAfterLength={collapseStringsAfterLength}
             />
           </div>
         ) : null}
@@ -237,10 +251,13 @@ class App extends React.Component {
                     <option value="2">展开2层</option>
                     <option value="3">展开3层</option>
                   </select>
+                  <label>
+                    展示字符个数：<input name="collapseStringsAfterLength" defaultValue={collapseStringsAfterLength} onChange={(e) => this.handleCollapseStringsInputChange(e)} />
+                  </label>
                 </div>
 
                 <div className="___lp-json-view-App-github">
-                  <img
+                <img
                     src={githubSvg}
                     onClick={() => window.open("https://github.com/lecepin")}
                   />
@@ -254,6 +271,7 @@ class App extends React.Component {
                   indentWidth={2}
                   displayDataTypes={false}
                   collapsed={collapsed}
+                  collapseStringsAfterLength={collapseStringsAfterLength}
                 />
               </div>
             </div>
