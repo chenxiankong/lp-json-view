@@ -23,13 +23,15 @@ class App extends React.Component {
       isJson: false,
       viewRaw: true,
       rjvKey: Date.now(),
-      collapsed: false,
-      collapseStringsAfterLength : 100,
+      collapsed: localStorage.getItem("lqjson_collapsed"),
+      collapseStringsAfterLength : localStorage.getItem("lqjson_collapseStringsAfterLength"),
     };
     this.refEdit = null;
     this.isDragStart = false;
     this.dragStartX = 0;
     this.dragStartWidth = 0;
+    this.subKey =     localStorage.getItem("lqjson_subKey");
+    this.data1 = ""
   }
 
   componentDidMount() {
@@ -49,7 +51,7 @@ class App extends React.Component {
     }
 
     try {
-      if (content.trimStart().indexOf("{") == 0 && JSON.parse(content)) {
+      if (content.trimStart().indexOf("-") == 0 && JSON.parse(content)) {
         this.setState({
           data: content,
           isJson: true,
@@ -105,21 +107,33 @@ class App extends React.Component {
     });
   }
 
-  handleTextAreaChange(e) {
+  handleTextAreaChange(e){
     e.persist();
-
+    this.renderJson(e.target.value);
+  }
+  renderJson(e) {
     try {
-      let _value = e.target.value?.trim() || "";
+      let _value = e?.trim() || "";
 
       if (_value[0] != "{" || _value[_value.length - 1] != "}") {
         throw 0;
       }
 
+      this.data1 = e
+      let v = parseJson(e)
+      console.log(this.subKey)
+      if (this.subKey !=""&&this.subKey != undefined ) {
+        console.log(222222)
+        v = parseJson(v[this.subKey])
+      }
+      console.log(333)
       this.setState({
-        data: parseJson(e.target.value),
+        // data: parseJson(e.target.value),
+        data: v,
         rjvKey: Date.now(),
       });
     } catch (error) {
+      console.log(error)
       this.setState({
         data: {},
       });
@@ -129,16 +143,20 @@ class App extends React.Component {
   // 视图配置
   handleStatusChange(e) {
     e.persist();
-    let value = false;
-
-    if (e.target.value == "true") {
-      value = true;
-    } else if (e.target.value == "false") {
-    } else {
-      value = +e.target.value;
+    let v = e.target.value;
+    let value = "1"
+    if (v <0) {
+      value = true
+    }else if (v == 0){
+      value = false
+    }else if (v > 5) {
+      value = 5
+    }else{
+      value = v
     }
 
     this.setState({ collapsed: value, rjvKey: Date.now() });
+    localStorage.setItem("lqjson_collapsed", v);
   }
 
   handleCollapseStringsInputChange(e) {
@@ -150,6 +168,15 @@ class App extends React.Component {
     }
 
     this.setState({ collapseStringsAfterLength: v });
+    localStorage.setItem("lqjson_collapseStringsAfterLength", v);
+  }
+
+  handleSubKeyChange(e) {
+    e.persist();
+    console.log("4444444");
+    this.subKey = e.target.value;
+    this.renderJson(this.data1);
+    localStorage.setItem("lqjson_subKey", this.subKey);
   }
 
 
@@ -178,7 +205,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { data, showView, viewRaw, isJson, rjvKey, collapsed,collapseStringsAfterLength } = this.state;
+    const { data, showView, viewRaw, isJson, rjvKey, collapsed,collapseStringsAfterLength,subKey } = this.state;
     const url = new URL(window.location.href);
 
     return (
@@ -243,28 +270,31 @@ class App extends React.Component {
               </div>
               <div className="___lp-json-view-App-parse-box-view">
                 <div className="___lp-json-view-App-status">
-                  展开状态：
-                  <select onChange={(e) => this.handleStatusChange(e)}>
-                    <option value="false">全部展开</option>
-                    <option value="true">全部折叠</option>
-                    <option value="1">展开1层</option>
-                    <option value="2">展开2层</option>
-                    <option value="3">展开3层</option>
-                  </select>
                   <label>
-                    展示字符个数：<input name="collapseStringsAfterLength" defaultValue={collapseStringsAfterLength} onChange={(e) => this.handleCollapseStringsInputChange(e)} />
+                    subKey：<input name="subKey" defaultValue={localStorage.getItem("lqjson_subKey")}
+                                  onChange={(e) => this.handleSubKeyChange(e)}/>
+                  </label>
+                  <label>
+                    展开：<input name=""
+                                        defaultValue={localStorage.getItem("lqjson_collapsed")}
+                                        onChange={(e) => this.handleStatusChange(e)}/>
+                  </label>
+                  <label>
+                    展示字符个数：<input name="collapseStringsAfterLength"
+                                        defaultValue={localStorage.getItem("lqjson_collapseStringsAfterLength")}
+                                        onChange={(e) => this.handleCollapseStringsInputChange(e)}/>
                   </label>
                 </div>
 
                 <div className="___lp-json-view-App-github">
-                <img
-                    src={githubSvg}
-                    onClick={() => window.open("https://github.com/lecepin")}
+                  <img
+                      src={githubSvg}
+                      onClick={() => window.open("https://github.com/lecepin")}
                   />
                 </div>
 
                 <ReactJson
-                  key={rjvKey}
+                    key={rjvKey}
                   name={null}
                   src={data || {}}
                   iconStyle="square"
